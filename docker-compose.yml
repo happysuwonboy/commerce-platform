@@ -5,6 +5,7 @@ services:
   mysql:
     image: mysql:8.4
     container_name: commerce-mysql
+    restart: unless-stopped
     ports:
       - "3306:3306"
     environment:
@@ -27,6 +28,7 @@ services:
   redis:
     image: redis:7.4-alpine
     container_name: commerce-redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
