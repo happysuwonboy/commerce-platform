@@ -39,6 +39,7 @@ dependencies {
 	testCompileOnly("org.projectlombok:lombok")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testAnnotationProcessor("org.projectlombok:lombok")
+	implementation("net.datafaker:datafaker:2.4.3")
 }
 
 tasks.withType<Test> {
