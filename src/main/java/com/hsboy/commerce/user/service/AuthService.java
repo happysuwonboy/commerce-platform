@@ -3,6 +3,7 @@ package com.hsboy.commerce.user.service;
 import com.hsboy.commerce.user.User;
 import com.hsboy.commerce.user.dto.SignupRequest;
 import com.hsboy.commerce.user.dto.SignupResponse;
+import com.hsboy.commerce.user.exception.DuplicateEmailException;
 import com.hsboy.commerce.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +19,7 @@ public class AuthService {
     @Transactional
     public SignupResponse signup(SignupRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
+            throw new DuplicateEmailException(request.getEmail());
         }
 
         User user = User.create(
