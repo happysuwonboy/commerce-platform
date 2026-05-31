@@ -1,0 +1,33 @@
+# 머신별 로컬 설정 템플릿.
+# 사용법:
+#   1. 이 파일을 docker-compose.override.yml 로 복사
+#   2. device 경로를 본인 머신의 데이터 저장 위치로 수정
+#   3. 해당 디렉터리를 미리 mkdir -p 로 생성
+#   4. docker compose up -d   (override 가 자동 머지됨)
+#
+# 주의:
+#   - device 는 반드시 절대 경로
+#   - macOS 면 파일시스템이 APFS / HFS+ 여야 함 (exFAT/NTFS 불가)
+#   - Docker Desktop → Settings → Resources → File sharing 에 경로 공유 필요
+services:
+  mysql:
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  redis:
+    volumes:
+      - redis-data:/data
+
+volumes:
+  mysql-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /absolute/path/to/your/data/mysql
+  redis-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /absolute/path/to/your/data/redis

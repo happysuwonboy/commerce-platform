@@ -43,6 +43,7 @@ out/
 .env
 *.local.yml
 application-local.yml
+docker-compose.override.yml
 
 ### Logs ###
 *.log
