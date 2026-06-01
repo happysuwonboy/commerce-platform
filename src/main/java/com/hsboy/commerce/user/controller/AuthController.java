@@ -1,5 +1,7 @@
 package com.hsboy.commerce.user.controller;
 
+import com.hsboy.commerce.user.dto.LoginRequest;
+import com.hsboy.commerce.user.dto.LoginResponse;
 import com.hsboy.commerce.user.dto.SignupRequest;
 import com.hsboy.commerce.user.dto.SignupResponse;
 import com.hsboy.commerce.user.service.AuthService;
@@ -22,5 +24,10 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<SignupResponse> signup(@RequestBody @Valid SignupRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.signup(request));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(authService.login(request));
     }
 }

@@ -27,6 +27,11 @@ spring:
       host: localhost
       port: 6379
 
+jwt:
+  secret: "zE+jemHu5pDkwGnf/iJXCG4YV6GdsHnFDRD3Ef7O8HI="
+  access-token-expiry: 1800000    # 30분 (ms)
+  refresh-token-expiry: 604800000 # 7일 (ms)
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
