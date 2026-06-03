@@ -1,5 +1,6 @@
 package com.hsboy.commerce.user.controller;
 
+import com.hsboy.commerce.common.exception.BusinessException;
 import com.hsboy.commerce.user.dto.*;
 import com.hsboy.commerce.user.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,5 +37,22 @@ public class AuthController {
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.ok(new LoginResponse(loginResult.accessToken()));
+    }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<ReissueResponse> reissue(@CookieValue(name = "refreshToken") String refreshToken, HttpServletResponse response) {
+        try {
+            return ResponseEntity.ok(authService.reissue(refreshToken));
+        } catch (BusinessException e) {
+            ResponseCookie cookie = ResponseCookie.from("refreshToken","")
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/api/auth")
+                    .maxAge(0)
+                    .sameSite("Strict")
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            throw e;
+        }
     }
 }

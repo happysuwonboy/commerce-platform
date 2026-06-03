@@ -4,9 +4,7 @@ import com.hsboy.commerce.common.config.JwtProperties;
 import com.hsboy.commerce.common.security.JwtProvider;
 import com.hsboy.commerce.user.User;
 import com.hsboy.commerce.user.dto.*;
-import com.hsboy.commerce.user.exception.DuplicateEmailException;
-import com.hsboy.commerce.user.exception.InvalidPasswordException;
-import com.hsboy.commerce.user.exception.NotExistedUserException;
+import com.hsboy.commerce.user.exception.*;
 import com.hsboy.commerce.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -62,6 +60,26 @@ public class AuthService {
                 .set("RT:" + request.email(), refreshToken, refreshTokenTtl);
 
         return new LoginResult(accessToken, refreshToken, refreshTokenTtl);
+    }
+
+    public ReissueResponse reissue(String refreshToken) {
+
+        boolean validated = jwtProvider.validate(refreshToken);
+
+        if (!validated) {
+            throw new InvalidTokenException(); // 추후 에러 코드 추가하여 변경
+        }
+
+        String email = jwtProvider.getEmail(refreshToken);
+        String key = "RT:" + email;
+        boolean matched = refreshToken.equals(redisTemplate.opsForValue().get(key));
+
+        if (!matched) {
+            throw new TokenNotFoundException(); // 추후 에러 코드 추가하여 변경
+        }
+
+        String newAccessToken = jwtProvider.generateAccessToken(email);
+        return new ReissueResponse(newAccessToken);
     }
 
 
