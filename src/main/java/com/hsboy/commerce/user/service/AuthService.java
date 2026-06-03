@@ -1,28 +1,31 @@
 package com.hsboy.commerce.user.service;
 
+import com.hsboy.commerce.common.config.JwtProperties;
 import com.hsboy.commerce.common.security.JwtProvider;
 import com.hsboy.commerce.user.User;
-import com.hsboy.commerce.user.dto.LoginRequest;
-import com.hsboy.commerce.user.dto.LoginResponse;
-import com.hsboy.commerce.user.dto.SignupRequest;
-import com.hsboy.commerce.user.dto.SignupResponse;
+import com.hsboy.commerce.user.dto.*;
 import com.hsboy.commerce.user.exception.DuplicateEmailException;
 import com.hsboy.commerce.user.exception.InvalidPasswordException;
 import com.hsboy.commerce.user.exception.NotExistedUserException;
 import com.hsboy.commerce.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.time.Duration;
+
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final JwtProperties jwtProperties;
+    private final StringRedisTemplate redisTemplate;
 
     @Transactional
     public SignupResponse signup(SignupRequest request) {
@@ -40,8 +43,7 @@ public class AuthService {
 
     }
 
-    @Transactional(readOnly = true)
-    public LoginResponse login(LoginRequest request) {
+    public LoginResult login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new NotExistedUserException(request.email()));
@@ -53,7 +55,13 @@ public class AuthService {
         String accessToken = jwtProvider.generateAccessToken(request.email());
         String refreshToken = jwtProvider.generateRefreshToken(request.email());
 
-        return new LoginResponse(accessToken, refreshToken);
+        // redis에 Refrest Token 저장
+        Duration refreshTokenTtl = Duration.ofMillis(jwtProperties.getRefreshTokenExpiry());
+        redisTemplate
+                .opsForValue()
+                .set("RT:" + request.email(), refreshToken, refreshTokenTtl);
+
+        return new LoginResult(accessToken, refreshToken, refreshTokenTtl);
     }
 
 
