@@ -1,6 +1,7 @@
 package com.hsboy.commerce.common.security;
 
 import com.hsboy.commerce.common.config.JwtProperties;
+import com.hsboy.commerce.user.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -23,9 +24,10 @@ public class JwtProvider {
         );
     }
 
-    public String generateAccessToken(String email) {
+    public String generateAccessToken(String email, Role role) {
         return Jwts.builder()
                 .subject(email)
+                .claim("role", role.name())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtProperties.getAccessTokenExpiry()))
                 .signWith(secretKey())
@@ -43,6 +45,11 @@ public class JwtProvider {
 
     public String getEmail(String token) {
         return parseClaims(token).getSubject();
+    }
+
+    public Role getRole(String token) {
+        String role = parseClaims(token).get("role", String.class);
+        return Role.valueOf(role);
     }
 
     public boolean validate(String token) {

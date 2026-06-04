@@ -50,7 +50,7 @@ public class AuthService {
             throw new InvalidPasswordException();
         }
 
-        String accessToken = jwtProvider.generateAccessToken(request.email());
+        String accessToken = jwtProvider.generateAccessToken(request.email(), user.getRole());
         String refreshToken = jwtProvider.generateRefreshToken(request.email());
 
         // redis에 Refrest Token 저장
@@ -78,8 +78,21 @@ public class AuthService {
             throw new TokenNotFoundException(); // 추후 에러 코드 추가하여 변경
         }
 
-        String newAccessToken = jwtProvider.generateAccessToken(email);
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotExistedUserException(email));
+        String newAccessToken = jwtProvider.generateAccessToken(email, user.getRole());
         return new ReissueResponse(newAccessToken);
+    }
+
+    public void logout(String refreshToken) {
+
+        boolean validated = jwtProvider.validate(refreshToken);
+
+        if (!validated) {
+            throw new InvalidTokenException(); // 추후 에러 코드 추가하여 변경
+        }
+
+        String email = jwtProvider.getEmail(refreshToken);
+        redisTemplate.opsForValue().getAndDelete("RT:" + email);
     }
 
 
