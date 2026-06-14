@@ -14,7 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "product_category")
+@Table(name = "categories")
 @EntityListeners(AuditingEntityListener.class)
 public class Category {
 

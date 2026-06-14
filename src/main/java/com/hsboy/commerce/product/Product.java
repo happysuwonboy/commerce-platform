@@ -41,9 +41,11 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
 
+    @Column(nullable = false)
     @CreatedDate
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
